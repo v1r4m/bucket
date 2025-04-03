@@ -15,6 +15,7 @@ export default function CalorieStairGame() {
   const [inputValue, setInputValue] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const saved = localStorage.getItem("calories");
@@ -35,14 +36,22 @@ export default function CalorieStairGame() {
   };
 
   const handleConfirm = () => {
+    const value = Number(inputValue);
     if (modalType === "burn") {
-      setCalories((prev) => prev + Number(inputValue));
+      setCalories((prev) => prev + value);
+      if (value >= 1000) {
+        setMessage("💪 우와! 많이 올랐어요!");
+      }
     } else if (modalType === "eat") {
-      setCalories((prev) => prev - Number(inputValue));
+      setCalories((prev) => prev - value);
+      if (value >= 1000) {
+        setMessage("😱 꽉 잡아! 많이 떨어졌어!");
+      }
     }
     setInputValue(0);
     setModalType(null);
     setAnimationKey((prev) => prev + 1);
+    setTimeout(() => setMessage(""), 2000);
   };
 
   const handleKeyDown = (e) => {
@@ -54,7 +63,7 @@ export default function CalorieStairGame() {
   const currentLevel = getLevel();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-sky-200 to-white">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-sky-200 to-white relative">
       <motion.div
         key={animationKey}
         initial={{ y: 20, opacity: 0 }}
@@ -74,6 +83,19 @@ export default function CalorieStairGame() {
       >
         {currentLevel.face}
       </motion.div>
+
+      <AnimatePresence>
+        {message && (
+          <motion.div
+            initial={{ y: -10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -10, opacity: 0 }}
+            className="absolute top-20 text-xl bg-white px-4 py-2 rounded-full shadow"
+          >
+            {message}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="mt-2 text-lg">총 소모 칼로리: {calories} kcal</div>
 
